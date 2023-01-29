@@ -1,16 +1,34 @@
-import express from "express";
-import { createNewThought, createReaction, deleteReaction, deleteThought, getAllReactions, getAllThoughts, getThought, updateThought } from "../controllers/thoughtsController";
+const router = require("express").Router();
+const {
+  createNewThought,
+  createReaction,
+  deleteReaction,
+  deleteThought,
+  getAllReactions,
+  getAllThoughts,
+  getThought,
+  updateThought,
+} = require("../../controllers/thoughtsController");
 
+router.route("/").get(getAllThoughts).post(createNewThought);
 
-const router = express.Router();
+router
+  .route("/:thoughtId")
+  .get(getThought)
+  .put(updateThought)
+  .delete(deleteThought);
 
-router.get("/", getAllThoughts);
-router.post("/", createNewThought);
-router.get("/:thoughtId", getThought);
-router.put("/:thoughtId", updateThought);
-router.delete("/:thoughtId", deleteThought);
-router.get("/:thoughtId/reactions", getAllReactions);
-router.post("/:thoughtId/reactions", createReaction);
-router.delete("/:thoughtId/reactions/:reactionId", deleteReaction);
+router.route("/:thoughtId/reactions").get(getAllReactions).post(createReaction);
 
-export default router;
+router.route("/:thoughtId/reactions/:reactionId").delete(deleteReaction);
+
+// router.get("/", getAllThoughts);
+// router.post("/", createNewThought);
+// router.get("/:thoughtId", getThought);
+// router.put("/:thoughtId", updateThought);
+// router.delete("/:thoughtId", deleteThought);
+// router.get("/:thoughtId/reactions", getAllReactions);
+// router.post("/:thoughtId/reactions", createReaction);
+// router.delete("/:thoughtId/reactions/:reactionId", deleteReaction);
+
+module.exports = router;

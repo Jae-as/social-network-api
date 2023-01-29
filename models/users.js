@@ -1,6 +1,4 @@
-import mongoose from "mongoose";
-
-const Schema = mongoose.Schema;
+const {Schema, Types} = require("mongoose");
 
 const userSchema = new Schema(
   {
@@ -48,5 +46,6 @@ userSchema.virtual("friendCount").get(function() {
     return this.friends.length;
 });
 
-//stored as users in mongoDB
-export default mongoose.model("User", userSchema);
+const Users = model("users", userSchema);
+
+module.exports = Users;
