@@ -4,7 +4,7 @@ const routes = require("./routes")
 
 const app = express();
 app.use(express.json());
-app.use("/api/users",router);
+app.use("/api/users",routes);
 mongoose
   .connect("mongodb://localhost:27017/socialnetworkDB")
   .then(() =>

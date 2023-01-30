@@ -1,6 +1,6 @@
 const { Thoughts, Users } = require("../models");
 
-modules.exports = {
+const thoughtsController = {
   //Find all thoughts
   async getAllThoughts(req, res) {
     let thoughts;
@@ -172,3 +172,5 @@ modules.exports = {
       .json({ message: "You have successfully deleted a reaction!" });
   },
 };
+
+module.exports = thoughtsController;

@@ -1,7 +1,7 @@
-import bcrypt from "bcryptjs";
+const bcrypt =require("bcryptjs");
 const { Users, Thoughts } = require("../models");
 
-modules.exports = {
+const usersController = {
   //Find all users
   async getAllUsers(req, res) {
     let users;
@@ -145,3 +145,5 @@ modules.exports = {
   //Delete friend
   async deleteFriend(req, res) {},
 };
+
+module.exports = usersController;
