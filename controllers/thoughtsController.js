@@ -19,7 +19,6 @@ const thoughtsController = {
   async createNewThought(req, res) {
     const { thoughtText, username } = req.body;
     const thought = new Thoughts({ thoughtText, username });
-
     try {
       await thought.save();
     } catch (err) {
@@ -170,7 +169,7 @@ const thoughtsController = {
     return res
       .status(400)
       .json({ message: "You have successfully deleted a reaction!" });
-  }
+  },
 };
 
 module.exports = thoughtsController;
