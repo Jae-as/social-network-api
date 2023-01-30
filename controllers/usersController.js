@@ -1,4 +1,4 @@
-const bcrypt =require("bcryptjs");
+const bcrypt = require("bcryptjs");
 const { Users, Thoughts } = require("../models");
 
 const usersController = {
@@ -22,7 +22,7 @@ const usersController = {
 
     let existingUser;
     try {
-      existingUser = await Users.findOne({ _id: params.id });
+      existingUser = await Users.findOne({ _id: req.params.userId });
     } catch (err) {
       console.log(err);
     }
@@ -45,10 +45,10 @@ const usersController = {
 
   //Update user information
   async updateUserInfo(req, res) {
-    const { name, password } = req.body;
+    const { name } = req.body;
     let existingUser;
     try {
-      existingUser = await Users.findOne({ _id: params.id });
+      existingUser = await Users.findOne({ _id: req.params.userId });
     } catch (err) {
       console.log(err);
     }
@@ -57,8 +57,7 @@ const usersController = {
         messgae: "There is no user found with this email address!",
       });
     }
-    const hashedPassword = bcrypt.hashSync(password);
-    const userInfo = Users({ name, password: hashedPassword });
+    const userInfo = Users({ name });
 
     try {
       await userInfo.update();
@@ -72,7 +71,7 @@ const usersController = {
   async getSingleUser(req, res) {
     let existingUser;
     try {
-      existingUser = await Users.findOne({ _id: params.id })
+      existingUser = await Users.findOne({ _id: req.params.userId })
         .populate({ path: "thoughts", select: "-_v" })
         .populate({ path: "friends", select: "-_v" });
     } catch (err) {
@@ -80,9 +79,10 @@ const usersController = {
     }
     if (!existingUser) {
       return res.status(400).json({
-        messgae: "No user found with this id!",
+        message: "No user found with this id!",
       });
     }
+    return res.status(201).json({ existingUser });
   },
 
   //Delete user
@@ -90,7 +90,7 @@ const usersController = {
     const { name, password } = req.body;
     let existingUser;
     try {
-      existingUser = await Users.findOne({ _id: params.id });
+      existingUser = await Users.findOne({ _id: req.params.userId });
     } catch (err) {
       console.log(err);
     }
@@ -120,54 +120,43 @@ const usersController = {
 
   //Add friend
   async addFriend(req, res) {
-    const {
-      friends: [],
-    } = req.body;
-    let existingUser;
-    try {
-      existingUser = await Users.findOne({ _id: params.id });
-    } catch (err) {
-      console.log(err);
-    }
-    if (!existingUser) {
-      return res.status(404).json({
-        messgae: "There is no user found with this id!",
-      });
-    }
-
-    const newFriend = Users({ friends: [] });
-    if (req.body.friends.length > 0) {
-      const newFriendArray = req.body.friends.map((newFriend) => {});
-    }
-    return Promise.all([Users.bulkCreate(newFriendArray), res.json(newFriend)]);
+    await Users.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $addToSet: { friends: { friendId: req.params.friendId } } },
+      { runValidators: true, new: true }
+    )
+      .then((friend) =>
+        !friend
+          ? res.status(404).json({ message: "No user was found with that if" })
+          : res.json(student)
+      )
+      .catch((err) => res.status(500).json(err));
   },
 
   //Delete friend
   async deleteFriend(req, res) {
-    const {
-      friends: [],
-    } = req.body;
-    let existingUser;
-    try {
-      existingUser = await Users.findOne({ _id: params.id });
-    } catch (err) {
-      console.log(err);
-    }
-    if (!existingUser) {
-      return res.status(404).json({
-        messgae: "There is no user found with this id!",
+    await Users.findOneAndRemove({ _id: req.params.friendId })
+      .then((friend) =>
+        !friend
+          ? res.status(404).json({ message: "No user exists" })
+          : User.findOneAndUpdate(
+              { friends: req.params.friendId },
+              { $pull: { friends: req.params.friendId } },
+              { new: true }
+            )
+      )
+      .then((user) =>
+        !user
+          ? res
+              .status(404)
+              .json({ message: "Friend deleted, nut no associated user found" })
+          : res.json({ message: "Friend successfully removed" })
+      )
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json(err);
       });
-    }
-    const friend = Users({friends});
-    try {
-      await friend.destroy();
-    } catch (err) {
-      console.log(err);
-    }
-    return res
-      .status(400)
-      .json({ message: "You have successfully remived a friend!" });
-  }
+  },
 };
 
 module.exports = usersController;
