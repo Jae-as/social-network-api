@@ -131,7 +131,7 @@ const usersController = {
     }
     if (!existingUser) {
       return res.status(404).json({
-        messgae: "There is no user found with this email address!",
+        messgae: "There is no user found with this id!",
       });
     }
 
@@ -143,7 +143,31 @@ const usersController = {
   },
 
   //Delete friend
-  async deleteFriend(req, res) {},
+  async deleteFriend(req, res) {
+    const {
+      friends: [],
+    } = req.body;
+    let existingUser;
+    try {
+      existingUser = await Users.findOne({ _id: params.id });
+    } catch (err) {
+      console.log(err);
+    }
+    if (!existingUser) {
+      return res.status(404).json({
+        messgae: "There is no user found with this id!",
+      });
+    }
+    const friend = Users({friends});
+    try {
+      await friend.destroy();
+    } catch (err) {
+      console.log(err);
+    }
+    return res
+      .status(400)
+      .json({ message: "You have successfully remived a friend!" });
+  }
 };
 
 module.exports = usersController;

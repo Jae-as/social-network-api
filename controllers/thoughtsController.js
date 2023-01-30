@@ -160,7 +160,7 @@ const thoughtsController = {
         .status(404)
         .json({ message: "There are no thoughts with this id" });
     }
-    const reaction = new Reaction({ reactionBody, username });
+    const reaction = Reaction({ reactionBody, username });
 
     try {
       await reaction.destroy();
@@ -170,7 +170,7 @@ const thoughtsController = {
     return res
       .status(400)
       .json({ message: "You have successfully deleted a reaction!" });
-  },
+  }
 };
 
 module.exports = thoughtsController;
