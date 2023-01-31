@@ -5,7 +5,8 @@ const thoughtsController = {
   async getAllThoughts(req, res) {
     let thoughts;
     try {
-      thoughts = await Thoughts.find({}).select("-_v").sort({ _id: 0 });
+      thoughts = await Thoughts.find({});
+      // .select("-_v").sort({ _id: 0 });
     } catch (err) {
       console.log(err);
     }
@@ -18,13 +19,12 @@ const thoughtsController = {
   //Create new thought
   async createNewThought(req, res) {
     const { thoughtText, username } = req.body;
-    const thought = new Thoughts({ thoughtText, username });
-    try {
-      await thought.save();
-    } catch (err) {
-      console.log(err);
-    }
-    return res.status(201).json({ thought });
+    const thought = await Thoughts.create(req.body)
+    .catch((err) => {
+      console.log(err)
+      return res.status(400).json({message: "Thought was not created"})
+    });
+    return res.status(201).json(thought);
   },
 
   //Fetch specific thought

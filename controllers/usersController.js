@@ -33,13 +33,11 @@ const usersController = {
       });
     }
     const hashedPassword = bcrypt.hashSync(password);
-    const user = new Users({ name, email, password: hashedPassword });
-
-    try {
-      await user.save();
-    } catch (err) {
-      console.log(err);
-    }
+    const user = await Users.create({ name, email, password: hashedPassword })
+    .catch((err) => {
+      console.log(err)
+      return res.status(400).json({message: "User was not created"})
+    });
     return res.status(201).json({ user });
   },
 
