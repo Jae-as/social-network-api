@@ -6,7 +6,11 @@ const usersController = {
   async getAllUsers(req, res) {
     let users;
     try {
-      users = await Users.find({}).select("-_v").sort({ _id: 0 });
+      users = await Users.find({})
+        .select("-_v")
+        .sort({ _id: 0 })
+        .populate({ path: "thoughts", select: "-_v" })
+        .populate({ path: "friends", select: "-_v" });
     } catch (err) {
       console.log(err);
     }
@@ -33,10 +37,13 @@ const usersController = {
       });
     }
     const hashedPassword = bcrypt.hashSync(password);
-    const user = await Users.create({ name, email, password: hashedPassword })
-    .catch((err) => {
-      console.log(err)
-      return res.status(400).json({message: "User was not created"})
+    const user = await Users.create({
+      name,
+      email,
+      password: hashedPassword,
+    }).catch((err) => {
+      console.log(err);
+      return res.status(400).json({ message: "User was not created" });
     });
     return res.status(201).json({ user });
   },
@@ -125,7 +132,7 @@ const usersController = {
     )
       .then((friend) =>
         !friend
-          ? res.status(404).json({ message: "No user was found with that if" })
+          ? res.status(404).json({ message: "No user was found with that id" })
           : res.json(student)
       )
       .catch((err) => res.status(500).json(err));

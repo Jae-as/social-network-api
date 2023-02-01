@@ -1,11 +1,11 @@
-const { Thoughts, Users } = require("../models");
+const { Details, Users } = require("../models");
 
 const thoughtsController = {
   //Find all thoughts
   async getAllThoughts(req, res) {
     let thoughts;
     try {
-      thoughts = await Thoughts.find({});
+      thoughts = await Details.Thoughts.find({});
       // .select("-_v").sort({ _id: 0 });
     } catch (err) {
       console.log(err);
@@ -19,11 +19,21 @@ const thoughtsController = {
   //Create new thought
   async createNewThought(req, res) {
     const { thoughtText, username } = req.body;
-    const thought = await Thoughts.create(req.body)
-    .catch((err) => {
-      console.log(err)
-      return res.status(400).json({message: "Thought was not created"})
+    let myUser = await Users.findOne({ name: username });
+    // console.log(JSON.stringify(myUser));
+    const thought = await Details.Thoughts.create({
+      thoughtText: thoughtText,
+      username: myUser._id,
+    }).catch((err) => {
+      console.log(err);
+      return res.status(400).json({ message: "Thought was not created" });
     });
+    await Users.findOneAndUpdate(
+      { _id: myUser._id },
+    //push because adding array vs addtoset
+      { $push: { thoughts: thought._id } },
+      { runValidators: true, new: true }
+    )
     return res.status(201).json(thought);
   },
 
@@ -32,7 +42,7 @@ const thoughtsController = {
     let existingThought;
 
     try {
-      existingThought = await Thoughts.findOne({
+      existingThought = await Details.Thoughts.findOne({
         _id: req.params.thoughtsId,
       }).populate({
         path: "reactions",
@@ -54,7 +64,7 @@ const thoughtsController = {
     let existingThought;
 
     try {
-      existingThought = await Thoughts.findOne({
+      existingThought = await Details.Thoughts.findOne({
         _id: req.params.thoughtsId,
       }).populate({
         path: "reactions",
@@ -83,7 +93,7 @@ const thoughtsController = {
     let existingThought;
 
     try {
-      existingThought = await Thoughts.findOne({
+      existingThought = await Details.Thoughts.findOne({
         _id: req.params.thoughtsId,
       }).populate({
         path: "reactions",
@@ -113,7 +123,9 @@ const thoughtsController = {
     let reactions;
 
     try {
-      reactions = await Thoughts.findOne({ _id: req.params.thoughtsId })
+      reactions = await Details.Reactions.findOne({
+        _id: req.params.thoughtsId,
+      })
         .populate({ path: "reactions", select: "-_v" })
         .select("-_v");
     } catch (err) {
@@ -132,7 +144,7 @@ const thoughtsController = {
     const { reactionBody, username } = req.body;
     let thought;
     try {
-      thought = await Thoughts.findOne({ _id: req.params.thoughtsId });
+      thought = await Details.Reactions.findOne({ _id: req.params.thoughtsId });
     } catch (err) {
       console.log(err);
     }
@@ -156,7 +168,7 @@ const thoughtsController = {
     const { reactionBody, username } = req.body;
     let thought;
     try {
-      thought = await Thoughts.findOne({ _id: req.params.thoughtsId });
+      thought = await Details.Reactions.findOne({ _id: req.params.thoughtsId });
     } catch (err) {
       console.log(err);
     }
