@@ -60,7 +60,7 @@ const thoughtsController = {
 
   //Update thought by id
   async updateThought(req, res) {
-    await Details.Thoughts.findOneAndUpdate(
+  let existingThought = await Details.Thoughts.findOneAndUpdate(
       { _id: req.params.thoughtId },
       //push because adding array vs addtoset
       { $set: req.body },
@@ -68,11 +68,11 @@ const thoughtsController = {
     ).catch((err) => {
       console.log(err);
     });
-    if (!thoughtId) {
+    if (!existingThought) {
       return res.status(404).json({ message: "No thought found with that ID" });
     }
     return res
-      .status(201)
+      .status(200)
       .json({ message: "You have successfully updated a thought" });
   },
 
