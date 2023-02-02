@@ -50,6 +50,7 @@ userSchema.virtual("thoughtCount").get(function() {
 });
 
 
+
 const Users = model("Users", userSchema);
 
 module.exports = Users;

@@ -73,10 +73,10 @@ const usersController = {
   },
 
   //Get single user with associated thoughts and friend data
-  async getSingleUser(req, res) {
+  async getSingleUser({params}, res) {
     let existingUser;
     try {
-      existingUser = await Users.findOne({ _id: req.params.userId })
+      existingUser = await Users.findOne({ email: params.email })
         .populate({ path: "thoughts", select: "-_v" })
         .populate({ path: "friends", select: "-_v" });
     } catch (err) {
