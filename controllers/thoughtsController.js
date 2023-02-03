@@ -42,9 +42,7 @@ const thoughtsController = {
 
   //Fetch specific thought
   async getThought({ params }, res) {
-    let existingThought = await Details.Thoughts.findOne({
-      _id: params.thoughtId,
-    })
+    let existingThought = await Details.Thoughts.findById(params.thoughtId)
       .select("-_v")
       .sort({ _id: 0 })
       .populate({ path: "reactions", select: "-_v" })
@@ -60,7 +58,7 @@ const thoughtsController = {
 
   //Update thought by id
   async updateThought(req, res) {
-  let existingThought = await Details.Thoughts.findOneAndUpdate(
+    let existingThought = await Details.Thoughts.findOneAndUpdate(
       { _id: req.params.thoughtId },
       //push because adding array vs addtoset
       { $set: req.body },
@@ -142,18 +140,18 @@ const thoughtsController = {
   },
 
   //Delete a reaction by the id
-  async deleteReaction({params}, res) {
-    let existingReaction = await Details.Reactions.findOneAndDelete({
-      _id: params.reactionId,
-    })
-      .select("-_v")
-      .sort({ _id: 0 })
-      .populate({ path: "reactions", select: "-_v" })
-      .catch((err) => {
-        console.log(err);
-      });
+  async deleteReaction({ params }, res) {
+    let existingThought = await Details.Thoughts.findOneAndUpdate(
+      {
+        _id: params.thoughtId,
+      },
+      { $pull: { reactions: { reactionId: params.reactionId } } },
+      { runValidators: true, new: true }
+    ).catch((err) => {
+      console.log(err);
+    });
     // console.log(JSON.stringify(params));
-    if (!existingReaction) {
+    if (!existingThought) {
       return res.status(404).json({ message: "No reactions found!" });
     }
     return res

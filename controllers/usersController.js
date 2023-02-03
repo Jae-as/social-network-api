@@ -15,7 +15,7 @@ const usersController = {
       console.log(err);
     }
     if (!users) {
-      return res.status(404).json({ messgae: "No users found!" });
+      return res.status(404).json({ message: "No users found!" });
     }
     return res.status(200).json({ users });
   },
