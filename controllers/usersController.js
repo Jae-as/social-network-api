@@ -1,4 +1,4 @@
-const bcrypt = require("bcryptjs");
+// const bcrypt = require("bcryptjs");
 const { Users, Thoughts } = require("../models");
 
 const usersController = {
@@ -26,7 +26,7 @@ const usersController = {
 
     let existingUser;
     try {
-      existingUser = await Users.findOne({ _id: req.params.userId });
+      existingUser = await Users.findOne({ email: req.params.email });
     } catch (err) {
       console.log(err);
     }
